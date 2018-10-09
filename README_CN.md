@@ -6,25 +6,25 @@ README: [ENGLISH](https://github.com/alexwoo1900/colorpalette/blob/master/README
 
 ## Demo演示
 
-<div align=center><img src="https://raw.githubusercontent.com/alexwoo1900/colorpalette/master/docs/assets/colorpalette.gif" alt="colorpalette-usage" /></div>
+<div align=center><img src="https://github.com/alexwoo1900/colorpalette/master/docs/assets/colorpalette.gif" alt="colorpalette-usage" /></div>
 
 ## 如何使用该工程
 
 ### 颜色条
 
 #### 显示颜色条
-```
+```python
 colorbar = Colorbar(384, 20)                            # 创建颜色条对象
 bar_matrix = colorbar.get_matrix()                      # 获取颜色条图像矩阵
 cv2.imshow('color_bar_demo', bar_matrix[:, :, ::-1])    # 将图像矩阵放到窗口上显示
 ```
 #### 颜色滑动块
-```
+```python
 colorstrip = Colorstrip(4, 20)                          # 创建滑动块对象
 colorstrip.connect(colorbar)                            # 将滑动块绑定到颜色条上
 
 colorstrip.slide(x)                                     # 让滑动块滑动到x处/在x处绘制
-bar_matrix = colorstrip.get_matrix()                    # 获取颜色条以及滑动块的图像矩阵
+bar_matrix = colorstrip.get_matrix()                    # 获取已绘制滑动块的颜色条图像矩阵
 cv2.imshow('color_bar_demo', bar_matrix[:, :, ::-1])    # 将图像矩阵放到窗口上显示
 ```
 #### 颜色条API
@@ -50,7 +50,7 @@ Colorstrip.**get_matrix()** \
 ### 取色版
 
 #### 显示取色版
-```
+```python
 colorboard = Colorboard(256, 256)                       # 创建取色版对象
 colorboard.connect(colorbar)                            # 将取色版绑定到颜色条上
 
@@ -58,9 +58,13 @@ board_matrix = colorboard.get_submatrix_by_index(x)     # 获取取色版需要�
 cv2.imshow('color_board_demo', board_matrix[:, :, ::-1])# 将图像矩阵放在窗口上显示
 ```
 #### 取色图钉
-```
+```python
 colorpin = Colorpin()                                   # 创建取色图钉对象
 colorpin.connect(colorboard)                            # 将取色图钉绑定到取色版上
+
+colorpin.locate(x, y)                                   # 将图钉定位到取色版坐标为(x,y)位置上
+board_matrix = colorpin.get_matrix()                    # 获取已绘制图钉的取色版图像矩阵
+cv2.imshow('color_board_demo', board_matrix[:, :, ::-1])# 将图像矩阵放在窗口上显示
 ```
 #### 取色版API
 Colorboard.**connect(bar)** \
