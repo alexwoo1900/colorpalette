@@ -22,7 +22,7 @@ class Colorstrip(object):
         strip = np.array([[x - self.width / 2, 0],
                           [x + self.width / 2, 0],
                           [x + self.width / 2, self.height - 1],
-                          [x - self.width / 2, self.height - 1]], dtype=np.int)
+                          [x - self.width / 2, self.height - 1]])
 
         cv2.fillPoly(self.bar_matrix, np.int32([strip]), (255, 255, 255))
 

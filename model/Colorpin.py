@@ -19,7 +19,7 @@ class Colorpin(object):
 
     def locate(self, x, y):
         if self.connected:
-            self.pinboard_matrix = self.board.get_current_matrix().copy()
+            self.pinboard_matrix = self.board.get_current_submatrix().copy()
             y_max, x_max, _ = self.pinboard_matrix.shape
             x = (x, 0)[x < 0]
             x = (x, x_max-1)[x >= x_max]

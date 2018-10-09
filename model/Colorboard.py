@@ -114,8 +114,8 @@ class Colorboard(object):
             except Exception as err:
                 raise err
 
-    def get_current_matrix(self):
-        self.get_submatrix_by_index(self.current_matrix_index)
+    def get_current_submatrix(self):
+        return self.get_submatrix_by_index(self.current_matrix_index)
 
     def get_submatrix_by_index(self, index):
         if self.connected:
