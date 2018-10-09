@@ -6,7 +6,7 @@ README: [ENGLISH](https://github.com/alexwoo1900/colorpalette/blob/master/README
 
 ## Demo演示
 
-<div align=center><img src="https://github.com/alexwoo1900/colorpalette/master/docs/assets/colorpalette.gif" alt="colorpalette-usage" /></div>
+<div align=center><img src="https://github.com/alexwoo1900/colorpalette/blob/master/docs/assets/colorpalette.gif" alt="colorpalette-usage" /></div>
 
 ## 如何使用该工程
 
