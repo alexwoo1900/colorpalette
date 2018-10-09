@@ -1,6 +1,6 @@
-# 调色板
+![colorpalette-logo](https://github.com/alexwoo1900/colorpalette/blob/master/docs/assets/colorpalette_logo.png)
 
-用Python和OpenCV编写的调色板工具
+用Python和penCV编写的调色板工具
 
 README: [ENGLISH](https://github.com/alexwoo1900/colorpalette/blob/master/README.md) | [简体中文](https://github.com/alexwoo1900/colorpalette/blob/master/README_CN.md)
 

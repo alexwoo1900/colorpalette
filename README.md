@@ -1,4 +1,5 @@
-# Color Palette
+![colorpalette-logo](https://github.com/alexwoo1900/colorpalette/blob/master/docs/assets/colorpalette_logo.png)
+
 Color palette written in Python and OpenCV
 
 README: [ENGLISH](https://github.com/alexwoo1900/colorpalette/blob/master/README.md) | [简体中文](https://github.com/alexwoo1900/colorpalette/blob/master/README_CN.md)
