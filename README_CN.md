@@ -5,13 +5,20 @@ README: [ENGLISH](https://github.com/alexwoo1900/colorpalette/blob/master/README
 
 ## Demo演示
 
-## 如何使用调色板
-### 显示渐变条
+## 如何使用该工程
 
-### 渐变条API
+### 颜色条
 
-### 显示取色版
+#### 显示颜色条
 
-### 取色版API
+#### 颜色条滑动块
 
-### 使用取色图钉
+#### 颜色条API
+
+### 取色版
+
+#### 显示取色版
+
+#### 取色图钉
+
+#### 取色版API

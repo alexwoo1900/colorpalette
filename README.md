@@ -6,12 +6,19 @@ README: [ENGLISH](https://github.com/alexwoo1900/colorpalette/blob/master/README
 ## Demo
 
 ## How to use it
-### Display Colorbar
 
-### Colorbar API
+### Colorbar
 
-### Display Colorboard
+#### Display Colorbar
 
-### Colorboard API
+#### Colorstrip
 
-### Use Colorpin
+#### Colorbar API
+
+### Colorboard
+
+#### Display Colorboard
+
+#### Colorpin
+
+#### Colorboard API
