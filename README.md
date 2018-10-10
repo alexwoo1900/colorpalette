@@ -97,8 +97,11 @@ Section | Meaning
 use_colorboard_rtcp | Real-time computing colorboard matrix
 use_colorboard_cache | Use colorboard matrix cache
 
-### To-do list
+### TO-DO list
 1. Speed up the display of colorboard. (Optimize matrix calculation and compress cache file) 
 2. Add Color-positioning
 3. Add Colorpicker module
 
+## License
+
+MIT License
