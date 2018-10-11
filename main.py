@@ -1,11 +1,11 @@
 import cv2
 
-from model.Colorbar import Colorbar
-from model.Colorboard import Colorboard
-from model.Colorpin import Colorpin
-from model.Colorstrip import Colorstrip
-from utils.ColorConverter import ConvertType
-from utils.ColorConverter import ColorConverter
+from model import Colorbar
+from model import Colorboard
+from model import Colorpin
+from model import Colorstrip
+from utils import ConvertType
+from utils import ColorConverter
 
 if __name__ == '__main__':
     cv2.namedWindow('color_bar_demo')
