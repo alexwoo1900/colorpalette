@@ -41,8 +41,15 @@ class Colorbar(object):
         for i in range(interval):
             self.colorbar_matrix[:, interval*5+i, ] = [255, 255-i*scale, 0]
 
+    def correct_position(self, x):
+        _, x_max, _ = self.colorbar_matrix.shape
+        x = (x, x_max-1)[x >= x_max]
+        x = (x, 0)[x < 0]
+        return x
+
     def get_matrix(self):
         return self.colorbar_matrix
 
     def get_rgb_by_x(self, x):
+        x = self.correct_position(x)
         return self.colorbar_matrix[0, x, ]

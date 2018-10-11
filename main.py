@@ -56,6 +56,13 @@ if __name__ == '__main__':
     # Need to convert RGB to BGR
     cv2.imshow('color_bar_demo', bar_matrix[:, :, ::-1])
 
+    colorstrip.slide(0)
+    bar_matrix = colorstrip.get_matrix()
+    cv2.imshow('color_bar_demo', bar_matrix[:, :, ::-1])
+
+    board_matrix = colorboard.get_submatrix_by_index(0)
+    cv2.imshow('color_board_demo', board_matrix[:, :, ::-1])
+
     # Press 'Esc' to exit
     while True:
         k = cv2.waitKey(1) & 0xFF
