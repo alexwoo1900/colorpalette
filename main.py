@@ -20,7 +20,7 @@ if __name__ == '__main__':
     colorpin = Colorpin()
     colorpin.connect(colorboard)
 
-    colorstrip = Colorstrip()
+    colorstrip = Colorstrip(config)
     colorstrip.connect(colorbar)
 
     def on_mouse_action_in_colorbar(event, x, y, flags, param):

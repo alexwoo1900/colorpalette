@@ -8,6 +8,9 @@ class ColorConfiguration(object):
         self.colorboard_cache_on = True
         self.colorboard_rtcp_on = False
 
+        self.colorstrip_width = 4
+        self.colorstrip_height = 10
+
         self.load_config()
 
     def load_config(self):
@@ -20,4 +23,7 @@ class ColorConfiguration(object):
         else:
             self.colorboard_cache_on = False
             self.colorboard_rtcp_on = False
+
+        self.colorstrip_width = int(self.conf['colorstrip']['width'])
+        self.colorstrip_height = int(self.conf['colorstrip']['height'])
 

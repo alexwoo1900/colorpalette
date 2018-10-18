@@ -6,8 +6,8 @@ from model import Colorbar
 
 class Colorstrip(object):
     def __init__(self, conf):
-        self._width = conf['colorstrip']['width']
-        self._height = conf['colorstrip']['height']
+        self._width = conf.colorstrip_width
+        self._height = conf.colorstrip_height
 
         self.connected_to_bar = False
 
