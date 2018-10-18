@@ -14,26 +14,26 @@ README: [ENGLISH](https://github.com/alexwoo1900/colorpalette/blob/master/README
 
 #### 显示颜色条
 ```python
-colorbar = Colorbar(384, 20)                            # 创建颜色条对象
-bar_matrix = colorbar.get_matrix()                      # 获取颜色条图像矩阵
-cv2.imshow('color_bar_demo', bar_matrix[:, :, ::-1])    # 将图像矩阵放到窗口上显示
+colorbar = Colorbar()                                                     # 创建颜色条对象
+bar_matrix = colorbar.get_cm()                                            # 获取颜色条计算矩阵
+cv2.imshow('color_bar_demo', cv2.cvtColor(bar_matrix, cv2.COLOR_HSV2BGR)) # 将计算矩阵放到窗口上显示
 ```
 #### 颜色滑动块
 ```python
-colorstrip = Colorstrip(4, 20)                          # 创建滑动块对象
-colorstrip.connect(colorbar)                            # 将滑动块绑定到颜色条上
+colorstrip = Colorstrip(conf)                                             # 创建滑动块对象
+colorstrip.connect(colorbar)                                              # 将滑动块绑定到颜色条上
 
-colorstrip.slide(x)                                     # 让滑动块滑动到x处/在x处绘制
-bar_matrix = colorstrip.get_matrix()                    # 获取已绘制滑动块的颜色条图像矩阵
-cv2.imshow('color_bar_demo', bar_matrix[:, :, ::-1])    # 将图像矩阵放到窗口上显示
+colorstrip.slide(x)                                                       # 让滑动块滑动到x位置处
+bar_matrix = colorstrip.get_cm()                                          # 获取已绘制滑动块的颜色条计算矩阵
+cv2.imshow('color_bar_demo', cv2.cvtColor(bar_matrix, cv2.COLOR_HSV2BGR)) # 将计算矩阵放到窗口上显示
 ```
 #### 颜色条API
 
-Colorbar.**get_matrix()** \
-获取颜色条颜色矩阵，格式为[row, column, color]
+Colorbar.**get_cm()** \
+获取颜色条计算矩阵，格式为[row, column, color_in_hsv]
 
-Colorbar.**get_rgb_by_x(x)** \
-根据x值来获取OpenCV坐标x轴上对应位置的RGB颜色值，格式为[r, g, b]
+Colorbar.**get_color(x)** \
+根据x值来获取OpenCV坐标x轴上对应位置的HSV颜色值，格式为[h, s_max, v_max]
 
 #### 滑动块API
 
@@ -43,41 +43,44 @@ Colorstrip.**connect(bar)** \
 Colorstrip.**slide(x)** \
 滑动并绘制滑动块到x处
 
-Colorstrip.**get_matrix()** \
-获取绘制滑动块后颜色条的颜色矩阵,返回值的格式为[row, column, color]
+Colorstrip.**get_cm()** \
+获取绘制滑动块后颜色条的计算矩阵,返回值的格式为[row, column, color_in_hsv]
 
 
 ### 取色版
 
 #### 显示取色版
 ```python
-colorboard = Colorboard(256, 256)                       # 创建取色版对象
-colorboard.connect(colorbar)                            # 将取色版绑定到颜色条上
+colorboard = Colorboard(conf)                                                # 创建取色版对象
+colorboard.connect(colorbar)                                                 # 将取色版绑定到颜色条上
 
-board_matrix = colorboard.get_submatrix_by_index(x)     # 获取取色版需要显示的颜色矩阵
-cv2.imshow('color_board_demo', board_matrix[:, :, ::-1])# 将图像矩阵放在窗口上显示
+board_matrix = colorboard.get_subcm(x)                                       # 获取取色版的计算矩阵
+cv2.imshow('color_board_demo', cv2.cvtColor(board_matrix, cv2.COLOR_HSV2BGR) # 将计算矩阵放到窗口上显示
 ```
 #### 取色图钉
 ```python
-colorpin = Colorpin()                                   # 创建取色图钉对象
-colorpin.connect(colorboard)                            # 将取色图钉绑定到取色版上
+colorpin = Colorpin()                                                        # 创建取色图钉对象
+colorpin.connect(colorboard)                                                 # 将取色图钉绑定到取色版上
 
-colorpin.locate(x, y)                                   # 将图钉定位到取色版坐标为(x,y)位置上
-board_matrix = colorpin.get_matrix()                    # 获取已绘制图钉的取色版图像矩阵
-cv2.imshow('color_board_demo', board_matrix[:, :, ::-1])# 将图像矩阵放在窗口上显示
+colorpin.locate(x, y)                                                        # 将图钉定位到取色版坐标(x, y)的位置上 
+board_matrix = colorpin.get_cm()                                             # 获取已绘制图钉的取色版计算矩阵
+cv2.imshow('color_board_demo', cv2.cvtColor(board_matrix, cv2.COLOR_HSV2BGR) # 将计算矩阵放在窗口上显示
 ```
 #### 取色版API
 Colorboard.**connect(bar)** \
-绑定已存在的Colorbar对象，取色版会根据Colorbar的色域来创建颜色矩阵
+绑定已存在的Colorbar对象
 
-Colorboard.**get_current_submatrix()** \
-获取当前使用中的颜色矩阵,返回值格式为[row, column, color]
+Colorboard.**get_current_subcm()** \
+获取当前使用中的子计算矩阵,返回值格式为[row, column, color_in_hsv]
 
-Colorboard.**get_submatrix_by_index(index)** \
-根据索引来获取对应的颜色矩阵，返回值格式同get_current_submatrix
+Colorboard.**get_subcm(hue)** \
+根据色相获得对应的子计算矩阵，返回值格式为[row, column, color_in_hsv]
 
-Colorboard.**get_rgb_by_xy(x, y)** \
-根据x,y来获取相应OpenCV坐标上的RGB颜色值，返回值的格式为[r, g, b]
+Colorboard.**get_color(x, y)** \
+根据x,y来获取相应OpenCV坐标上的HSV颜色值，返回值的格式为[h, s, v]
+
+Colorboard.**get_color_pos(color_in_hsv)** \
+根据HSV颜色值获取其在颜色条以及取色版的位置，返回值格式为[hue, row, column]
 
 #### 取色图钉API
 
@@ -87,8 +90,8 @@ Colorpin.**connect(board)** \
 Colorpin.**locate(x, y)** \
 在取色版上定位并绘制图钉
 
-Colorpin.**get_matrix()** \
-获取绘制图钉之后的取色版颜色矩阵，返回值格式为[row, column, color]
+Colorpin.**get_cm()** \
+获取绘制图钉之后的取色版计算矩阵，返回值格式为[row, column, color_in_hsv]
 
 ### 额外配置
 
@@ -99,7 +102,7 @@ use_colorboard_cache | 使用取色版矩阵缓存
 
 ### 后续工作
 1. ~~加速取色版的色彩显示。在实时计算上优化矩阵计算部分，在缓存机制上优化文件体积~~
-2. 加入色彩定位
+2. ~~加入色彩定位~~
 3. 添加取色器模块
 
 ## 许可证

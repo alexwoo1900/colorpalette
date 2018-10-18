@@ -1,35 +1,52 @@
 import cv2
 import numpy as np
 
+from model import Colorbar
+
 
 class Colorstrip(object):
-    def __init__(self, width, height):
-        self.bar = None
-        self.bar_matrix = None
+    def __init__(self, conf):
+        self._width = conf['colorstrip']['width']
+        self._height = conf['colorstrip']['height']
 
-        self.width = width
-        self.height = height
+        self.connected_to_bar = False
+
+        self.b = None
+        self._cm = None
 
     def connect(self, bar):
-        self.bar = bar
+        if isinstance(bar, Colorbar):
+            self.b = bar
+            self.connected_to_bar = True
+        else:
+            raise Exception("Target object doesn't belong to Class 'Colorbar'")
+
+    def correct_x(self, x):
+        x = int(x)
+        half_width = int(self._width / 2)
+        _, x_max, _ = self._cm.shape
+        if x < 0:
+            return 0
+        elif x + half_width >= x_max:
+            return x_max - 1 - half_width
+        else:
+            return x
 
     def slide(self, x):
-        self.bar_matrix = self.bar.get_matrix().copy()
-        _, x_max, _ = self.bar_matrix.shape
+        self._cm = self.b.get_cm().copy()
+        x = self.correct_x(x)
 
-        half_width = int(self.width / 2)
-        x = (x, 0)[x < 0]
-        x = (x, x_max - 1 - half_width)[x + half_width >= x_max]
+        half_width = int(self._width / 2)
 
-        strip = np.array([[x - half_width, 0],
-                          [x + half_width, 0],
-                          [x + half_width, self.height - 1],
-                          [x - half_width, self.height - 1]])
+        strip = np.array([[x - half_width,                0],
+                          [x + half_width,                0],
+                          [x + half_width, self._height - 1],
+                          [x - half_width, self._height - 1]])
 
-        cv2.fillPoly(self.bar_matrix, np.int32([strip]), (222, 222, 222))
-
+        # paint
+        cv2.fillPoly(self._cm, np.int32([strip]), (0, 0, 255))
         # frame
-        cv2.rectangle(self.bar_matrix, (x - half_width, 0), (x + half_width, self.height - 1), (161, 161, 161))
+        cv2.rectangle(self._cm, (x - half_width, 0), (x + half_width, self._height - 1), (0, 0, 0))
 
-    def get_matrix(self):
-        return self.bar_matrix
+    def get_cm(self):
+        return self._cm

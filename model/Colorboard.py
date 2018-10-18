@@ -1,177 +1,129 @@
 import os
 import logging
-import configparser
-
-import datetime
 
 import numpy as np
 
+from model import Global
 from .Colorbar import Colorbar
 
 
 class Colorboard(object):
-    def __init__(self, width, height):
-        self.config = None
-        self.bar = None
-        self.colorboard_matrix = None
-        self.matrix_count = -1
-        self.connected = False
-        self.current_matrix_index = 0
-        self.rtcp_on = False
+    def __init__(self, conf):
+        self.conf = conf
 
-        self.width = width
-        self.height = height
+        self.b = None
+        self.connected_to_bar = False
+        self.current_hue = -1
+
+        # Computational Matrix
+        self._cm = np.zeros((Global.OPCV_HUE_SIZE,
+                             Global.OPCV_VAL_SIZE,
+                             Global.OPCV_SAT_SIZE,
+                             Global.HSV_COMPONENT_SIZE), dtype=np.uint8)
 
     def connect(self, bar):
         if isinstance(bar, Colorbar):
-            self.bar = bar
-            self.matrix_count = self.bar.width
-            self.colorboard_matrix = np.zeros((self.matrix_count, self.height, self.width, 3), np.uint8)
-            self.connected = True
+            self.b = bar
+            self.connected_to_bar = True
             try:
-                self.load_config()
+                self.prepare()
             except Exception as err:
                 raise err
         else:
             raise Exception("Target object doesn't belong to Class 'Colorbar'")
 
-    def load_config(self):
-        self.config = configparser.ConfigParser()
-        self.config.read('config.ini')
-        if int(self.config['color']['use_colorboard_cache']):
+    def prepare(self):
+        if self.conf.colorboard_cache_on:
             if os.path.exists('cache/colorboard.mtx') and os.path.isfile('cache/colorboard.mtx'):
                 try:
-                    self.load_cached_colorboard_matrix()
+                    self.load_cached_cm()
                 except Exception as err:
                     raise err
             else:
                 logging.debug('No colorboard cache, generating new one...')
                 try:
-                    self.generate_colorboard_matrix(True)
+                    self.generate_cm(True)
                 except Exception as err:
                     raise err
-        elif int(self.config['color']['use_colorboard_rtcp']):
-            self.rtcp_on = True
-        else:
-            self.generate_colorboard_matrix(False)
+        elif not self.conf.colorboard_cache_on and not self.conf.colorboard_rtcp_on:
+            self.generate_cm(False)
 
-    def load_cached_colorboard_matrix(self):
+    def load_cached_cm(self):
         try:
             data = np.fromfile('cache/colorboard.mtx', np.uint8)
-            data.shape = self.matrix_count, self.height, self.width, 3
-            self.colorboard_matrix = data
+            data.shape = Global.OPCV_HUE_SIZE, Global.OPCV_VAL_SIZE, Global.OPCV_SAT_SIZE, Global.HSV_COMPONENT_SIZE
+            self._cm = data
         except Exception as err:
             raise err
 
-    def generate_colorboard_submatrix(self, index):
-        color = self.bar.get_rgb_by_x(index)
-        start_r, start_g, start_b = 255, 255, 255
-        end_r, end_g, end_b = color
-        start_col_interval = -255 / self.width
-        end_col_r_interval = end_r * -1 / self.width
-        end_col_g_interval = end_g * -1 / self.width
-        end_col_b_interval = end_b * -1 / self.width
+    def generate_cm(self, caching):
+        for i in range(Global.OPCV_HUE_SIZE):
+            self.generate_subcm(i)
 
-        r_interval = (end_r - start_r) / self.width
-        g_interval = (end_g - start_g) / self.width
-        b_interval = (end_b - start_b) / self.width
-        # starttime = datetime.datetime.now()
-        for row in range(self.height):
-            if r_interval != 0:
-                row_r = np.arange(start_r, end_r+1e-6, r_interval).reshape(self.width, 1)
-            else:
-                row_r = np.full((self.width,), end_r).reshape(self.width, 1)
-            if g_interval != 0:
-                row_g = np.arange(start_g, end_g+1e-6, g_interval).reshape(self.width, 1)
-            else:
-                row_g = np.full((self.width,), end_g).reshape(self.width, 1)
-            if b_interval != 0:
-                row_b = np.arange(start_b, end_b+1e-6, b_interval).reshape(self.width, 1)
-            else:
-                row_b = np.full((self.width,), end_b).reshape(self.width, 1)
-
-            row_rgb = np.hstack((row_r, row_g, row_b))
-            self.colorboard_matrix[index, row, ] = row_rgb
-
-            start_r, start_g, start_b = start_r + start_col_interval, start_g + start_col_interval, start_b + start_col_interval
-            end_r, end_g, end_b = end_r + end_col_r_interval, end_g + end_col_g_interval, end_b + end_col_b_interval
-            r_interval = (end_r - start_r) / self.width
-            g_interval = (end_g - start_g) / self.width
-            b_interval = (end_b - start_b) / self.width
-        # endtime = datetime.datetime.now()
-        # print((endtime-starttime).microseconds)
-
-
-    def generate_colorboard_matrix(self, caching_flag):
-        for index in range(self.matrix_count):
-            color = self.bar.get_rgb_by_x(index)
-            start_r, start_g, start_b = 255, 255, 255
-            end_r, end_g, end_b = color
-            start_col_interval = -255 / self.width
-            end_col_r_interval = end_r * -1 / self.width
-            end_col_g_interval = end_g * -1 / self.width
-            end_col_b_interval = end_b * -1 / self.width
-
-            r_interval = (end_r - start_r) / self.width
-            g_interval = (end_g - start_g) / self.width
-            b_interval = (end_b - start_b) / self.width
-            for row in range(self.height):
-                if r_interval != 0:
-                    row_r = np.arange(start_r, end_r+1e-6, r_interval).reshape(self.width, 1)
-                else:
-                    row_r = np.full((self.width,), end_r).reshape(self.width, 1)
-                if g_interval != 0:
-                    row_g = np.arange(start_g, end_g+1e-6, g_interval).reshape(self.width, 1)
-                else:
-                    row_g = np.full((self.width,), end_g).reshape(self.width, 1)
-                if b_interval != 0:
-                    row_b = np.arange(start_b, end_b+1e-6, b_interval).reshape(self.width, 1)
-                else:
-                    row_b = np.full((self.width,), end_b).reshape(self.width, 1)
-
-                row_rgb = np.hstack((row_r, row_g, row_b))
-                self.colorboard_matrix[index, row, ] = row_rgb
-
-                start_r, start_g, start_b = start_r + start_col_interval, start_g + start_col_interval, start_b + start_col_interval
-                end_r, end_g, end_b = end_r + end_col_r_interval, end_g + end_col_g_interval, end_b + end_col_b_interval
-                r_interval = (end_r - start_r) / self.width
-                g_interval = (end_g - start_g) / self.width
-                b_interval = (end_b - start_b) / self.width
-
-        if caching_flag:
+        if caching:
             try:
-                self.colorboard_matrix.tofile('cache/colorboard.mtx')
+                self._cm.tofile('cache/colorboard.mtx')
             except Exception as err:
                 raise err
 
-    def get_current_submatrix(self):
-        return self.get_submatrix_by_index(self.current_matrix_index)
+    @staticmethod
+    def correct_hue(h):
+        if h < 0:
+            return 0
+        elif h > Global.OPCV_HUE_MAX:
+            return Global.OPCV_HUE_MAX
+        else:
+            return h
 
-    def correct_index(self, index):
-        index = (index, 0)[index < 0]
-        index = (index, self.matrix_count - 1)[index >= self.matrix_count]
-        return index
+    def generate_subcm(self, hue):
+        # Saturation array
+        s_arr = np.arange(Global.OPCV_SAT_MIN, Global.OPCV_SAT_MAX + 1e-6, 1)
+        # Saturation matrix
+        s_m = np.tile(s_arr, Global.OPCV_VAL_SIZE).reshape(Global.OPCV_VAL_SIZE, Global.OPCV_SAT_SIZE, 1)
+        # Value array
+        v_arr = np.arange(Global.OPCV_VAL_MAX, Global.OPCV_VAL_MIN - 1e-6, -1)
+        # Value matrix
+        v_m = np.transpose(np.tile(v_arr, Global.OPCV_SAT_SIZE).reshape(Global.OPCV_SAT_SIZE, Global.OPCV_VAL_SIZE)).reshape(Global.OPCV_VAL_SIZE, Global.OPCV_SAT_SIZE, 1)
+        # Hue matrix
+        h_m = np.full((Global.OPCV_VAL_SIZE, Global.OPCV_SAT_SIZE, 1), hue)
+        # Sub Computational Matrix
+        hsv_m = np.dstack((h_m, s_m, v_m)).reshape(Global.OPCV_VAL_SIZE, Global.OPCV_SAT_SIZE, Global.HSV_COMPONENT_SIZE)
 
-    def correct_position(self, x, y):
-        _, y_max, x_max, _ = self.colorboard_matrix.shape
-        x = (x, 0)[x < 0]
-        x = (x, x_max-1)[x >= x_max]
-        y = (y, 0)[y < 0]
-        y = (y, y_max-1)[y >= y_max]
-        return x, y
+        self._cm[hue, ] = hsv_m
 
-    def get_submatrix_by_index(self, index):
-        if self.connected:
-            self.current_matrix_index = self.correct_index(index)
-            if self.rtcp_on:
-                self.generate_colorboard_submatrix(self.current_matrix_index)
-            return self.colorboard_matrix[self.current_matrix_index, ]
+    def get_subcm(self, hue):
+        if self.connected_to_bar:
+            self.current_hue = Colorboard.correct_hue(hue)
+            if self.conf.colorboard_rtcp_on:
+                self.generate_subcm(self.current_hue)
+            return self._cm[self.current_hue, ]
         else:
             raise Exception("Haven't connected to colorbar yet")
 
-    def get_rgb_by_xy(self, x, y):
-        if self.connected:
-            x, y = self.correct_position(x, y)
-            return self.colorboard_matrix[self.current_matrix_index, y, x, ]
+    def get_current_subcm(self):
+        return self.get_subcm(self.current_hue)
+
+    def correct_xy(self, x, y):
+        _, y_max, x_max, _ = self._cm.shape
+        result_x, result_y = x, y
+        if x < 0:
+            result_x = 0
+        elif x >= x_max:
+            result_x = x_max - 1
+
+        if y < 0:
+            result_y = 0
+        elif y >= y_max:
+            result_y = y_max - 1
+        return result_x, result_y
+
+    def get_color(self, x, y):
+        if self.connected_to_bar:
+            x, y = self.correct_xy(x, y)
+            return self._cm[self.current_hue, y, x, ]
         else:
             raise Exception("Haven't connected to colorbar yet")
+
+    def get_color_pos(self, color):
+        h, s, v = color
+        return h, 255 - v, s
